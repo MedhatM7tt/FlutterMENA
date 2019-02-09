@@ -1,45 +1,7 @@
-/* import 'package:flutter/material.dart';
-
-void main() {
-  runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Hello Rectangle',
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Hello'),
-        ),
-        body: HelloRectangle(),
-      ),
-    ),
-  );
-}
-
-class HelloRectangle extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        color: Colors.greenAccent,
-        height: 400.0,
-        width: 300.0,
-        child: Center(
-          child: Text(
-            'Hello!v',
-            style: TextStyle(fontSize: 40.0),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    );
-  }
-}
- */
-
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'screens/secondScreen.dart';
-import 'screens/myMenu.dart';
+import 'screens/SavedList.dart';
 
 void main() {
   runApp(MyApp());
@@ -65,18 +27,22 @@ class MyStateFul extends StatefulWidget {
 class _MyStateFulState extends State<MyStateFul> {
   final WordPair wordPair = new WordPair.random();
   final List<WordPair> _suggestions = <WordPair>[];
+  final Set<WordPair> _saved = new Set<WordPair>();
   final TextStyle _biggerFont = const TextStyle(fontSize: 18.0);
   @override
   Widget build(BuildContext context) {
     return Container(
       child: new Scaffold(
-        drawer: Drawer(
-          child: MyMenuDesign(),
-        ),
         appBar: new AppBar(
           title: new Center(
-            child: new Text("Bar"),
+            child: new Text("Words Suggestions"),
           ),
+          actions: <Widget>[
+            new IconButton(
+              icon: Icon(Icons.list),
+              onPressed: _savedItems,
+            ),
+          ],
         ),
         body:
             /*Center(
@@ -107,8 +73,21 @@ class _MyStateFulState extends State<MyStateFul> {
   }
 
   Widget _buildRow(WordPair pair) {
+    final bool alreadySaved = _saved.contains(pair);
     return new ListTile(
-      trailing: Icon(Icons.favorite, color: Colors.yellow),
+      trailing: IconButton(
+        icon: alreadySaved ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
+        color: alreadySaved ? Colors.red : Colors.yellow,
+        onPressed: () {
+          setState(() {
+            if (alreadySaved) {
+              _saved.remove(pair);
+            } else {
+              _saved.add(pair);
+            }
+          });
+        },
+      ),
       leading: CircleAvatar(
         child: Text(
           pair.toString()[0].toUpperCase(),
@@ -126,5 +105,11 @@ class _MyStateFulState extends State<MyStateFul> {
         ));
       },
     );
+  }
+
+  void _savedItems() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (BuildContext context) => SavedList(_saved),
+    ));
   }
 }
